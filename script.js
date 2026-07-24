@@ -261,12 +261,25 @@ function toggleDescription(productId) {
     return;
   }
 
-  const isHidden = descriptionElement.hidden;
-  descriptionElement.hidden = !isHidden;
-  detailsButton.textContent = isHidden
-    ? "Hide description"
-    : "View description";
-  detailsButton.setAttribute("aria-expanded", String(isHidden));
+  const allDescriptions = document.querySelectorAll(".product-description");
+  const allButtons = document.querySelectorAll(".details-toggle");
+
+  const shouldOpen = descriptionElement.hidden;
+
+  allDescriptions.forEach((element) => {
+    element.hidden = true;
+  });
+
+  allButtons.forEach((button) => {
+    button.textContent = "View description";
+    button.setAttribute("aria-expanded", "false");
+  });
+
+  if (shouldOpen) {
+    descriptionElement.hidden = false;
+    detailsButton.textContent = "Hide description";
+    detailsButton.setAttribute("aria-expanded", "true");
+  }
 }
 
 /* Safely render a string inside our chat bubbles */
