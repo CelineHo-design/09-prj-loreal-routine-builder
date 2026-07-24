@@ -401,6 +401,8 @@ function setChatEnabled(isEnabled) {
 
 /* Pull the text reply out of the worker response so both chat-completions and responses API payloads work */
 function extractReplyContent(data) {
+  const citations = extractWebSearchCitations(data);
+
   if (Array.isArray(data.choices) && data.choices[0]?.message?.content) {
     return {
       content: data.choices[0].message.content,
@@ -411,23 +413,21 @@ function extractReplyContent(data) {
   if (typeof data.output_text === "string" && data.output_text.trim()) {
     return {
       content: data.output_text,
-      citations: Array.isArray(data.output)
-        ? data.output.flatMap((item) => item.content || [])
-        : [],
+      citations,
     };
   }
 
   if (Array.isArray(data.output)) {
     const combinedText = data.output
-      .flatMap((item) => item.content || [])
-      .map((entry) => entry.text || "")
+      .flatMap((item) => (Array.isArray(item.content) ? item.content : []))
+      .map((entry) => (typeof entry.text === "string" ? entry.text : ""))
       .filter(Boolean)
       .join("\n");
 
     if (combinedText.trim()) {
       return {
         content: combinedText,
-        citations: data.output,
+        citations,
       };
     }
   }
@@ -436,6 +436,52 @@ function extractReplyContent(data) {
     content: "I’m sorry, I couldn’t generate a response right now.",
     citations: [],
   };
+}
+
+/* Extract real web citations from the Responses API payload */
+function extractWebSearchCitations(data) {
+  const citations = [];
+  const seenUrls = new Set();
+
+  function visit(value) {
+    if (!value || typeof value !== "object") {
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+
+    if (value.type === "url_citation" && typeof value.url === "string") {
+      const normalizedUrl = value.url.trim();
+      if (!normalizedUrl || seenUrls.has(normalizedUrl)) {
+        return;
+      }
+
+      seenUrls.add(normalizedUrl);
+      citations.push({
+        url: normalizedUrl,
+        title:
+          typeof value.title === "string" && value.title.trim()
+            ? value.title.trim()
+            : normalizedUrl,
+      });
+    }
+
+    if (Array.isArray(value.annotations)) {
+      value.annotations.forEach(visit);
+    }
+
+    if (Array.isArray(value.content)) {
+      value.content.forEach(visit);
+    }
+
+    Object.values(value).forEach(visit);
+  }
+
+  visit(data);
+  return citations;
 }
 
 /* Send the conversation to the Cloudflare Worker */
