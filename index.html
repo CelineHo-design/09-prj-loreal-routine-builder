@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -25,18 +25,46 @@
 
       <!-- Category Filter -->
       <div class="search-section">
-        <select id="categoryFilter">
-          <option value="" disabled selected>Choose a Category</option>
-          <option value="cleanser">Cleansers</option>
-          <option value="moisturizer">Moisturizers & Treatments</option>
-          <option value="haircare">Haircare</option>
-          <option value="makeup">Makeup</option>
-          <option value="hair color">Hair Color</option>
-          <option value="hair styling">Hair Styling</option>
-          <option value="men's grooming">Men's Grooming</option>
-          <option value="suncare">Suncare</option>
-          <option value="fragrance">Fragrance</option>
-        </select>
+        <div class="search-controls">
+          <select id="categoryFilter">
+            <option value="" disabled selected>Choose a Category</option>
+            <option value="cleanser">Cleansers</option>
+            <option value="moisturizer">Moisturizers & Treatments</option>
+            <option value="haircare">Haircare</option>
+            <option value="makeup">Makeup</option>
+            <option value="hair color">Hair Color</option>
+            <option value="hair styling">Hair Styling</option>
+            <option value="men's grooming">Men's Grooming</option>
+            <option value="suncare">Suncare</option>
+            <option value="fragrance">Fragrance</option>
+          </select>
+          <label for="productSearchInput" class="visually-hidden"
+            >Search products</label
+          >
+          <input
+            id="productSearchInput"
+            class="search-input"
+            type="search"
+            placeholder="Search live L'Oréal products by name or keyword…"
+            autocomplete="off"
+          />
+          <button
+            id="rtlToggle"
+            class="rtl-toggle"
+            type="button"
+            aria-pressed="false"
+          >
+            Switch to RTL
+          </button>
+        </div>
+        <p id="productSearchStatus" class="search-status">
+          Live product search: type to instantly narrow the product catalog.
+        </p>
+        <p
+          id="searchResultsCount"
+          class="search-results-count"
+          aria-live="polite"
+        ></p>
       </div>
 
       <!-- Products Grid -->
@@ -44,10 +72,17 @@
 
       <!-- Selected Products -->
       <div class="selected-products">
-        <h2>Selected Products</h2>
-        <div id="selectedProductsList"></div>
-        <button id="generateRoutine" class="generate-btn">
+        <div class="selected-products-header">
+          <h2>Selected Products</h2>
+          <span id="selectionCount" class="selection-count">0 items</span>
+        </div>
+        <p id="savedSelectionsHint" class="saved-hint" hidden></p>
+        <div id="selectedProductsList" aria-live="polite"></div>
+        <button id="generateRoutine" class="generate-btn" disabled>
           <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Routine
+        </button>
+        <button id="clearSelectionsBtn" class="clear-btn" disabled>
+          Clear All Selections
         </button>
       </div>
 
